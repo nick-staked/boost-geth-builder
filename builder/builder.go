@@ -88,13 +88,16 @@ func (b *Builder) newSealedBlock(data *beacon.ExecutableDataV1, block *types.Blo
 	dataJson, err := json.Marshal(data)
 	if err == nil {
 		log.Info("newSealedBlock", "data", string(dataJson))
+	} else {
+		log.Info("newSealedBlock", "err", err, "data", data)
 	}
 	payload := executableDataToExecutionPayload(data)
 
 	vd, err := b.relay.GetValidatorForSlot(payloadAttributes.Slot)
 	if err != nil {
-		log.Error("could not get validator while submitting block", "err", err, "slot", payloadAttributes.Slot)
-		return
+		vd = ValidatorData{Pubkey: PubkeyHex(boostTypes.PublicKey{}.String())}
+		//log.Error("could not get validator while submitting block", "err", err, "slot", payloadAttributes.Slot)
+		//return
 	}
 
 	pubkey, err := boostTypes.HexToPubkey(string(vd.Pubkey))
@@ -138,8 +141,8 @@ func payloadToPayloadHeader(p *boostTypes.ExecutionPayload) (*boostTypes.Executi
 	txs := boostTypes.Transactions{
 		Transactions: [][]byte{},
 	}
-	for i, tx := range p.Transactions {
-		txs.Transactions[i] = []byte(tx)
+	for _, tx := range p.Transactions {
+		txs.Transactions = append(txs.Transactions, []byte(tx))
 	}
 	txroot, err := txs.HashTreeRoot()
 	if err != nil {

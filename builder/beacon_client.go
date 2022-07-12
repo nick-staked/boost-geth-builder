@@ -71,9 +71,9 @@ func (b *BeaconClient) onForkchoiceUpdate() (uint64, error) {
 		return 0, err
 	}
 
-	nextSlot := currentSlot + 1
+	nextSlot := currentSlot + 2
 
-	b.currentSlot = currentSlot
+	b.currentSlot = currentSlot +1
 	nextSlotEpoch := nextSlot / 32
 
 	if nextSlotEpoch != b.currentEpoch {
@@ -89,7 +89,7 @@ func (b *BeaconClient) onForkchoiceUpdate() (uint64, error) {
 
 	nextSlotProposer, found := b.slotProposerMap[nextSlot]
 	if !found {
-		log.Error("inconsistent proposer mapping", "currentSlot", currentSlot, "slotProposerMap", b.slotProposerMap)
+		log.Error("inconsistent proposer mapping", "currentSlot", currentSlot+1, "slotProposerMap", b.slotProposerMap)
 		return 0, errors.New("inconsistent proposer mapping")
 	}
 	b.nextSlotProposer = nextSlotProposer
